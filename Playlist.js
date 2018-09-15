@@ -19,11 +19,12 @@ export default class Playlist {
   };
 
   static _parseChannelList = function(m3u) {
-    const m3uHeader = '#EXTM3U';
+    const KDefaultGroup = 'Другие каналы';
 
     let obj = {};
     let groups = {};
     let chan = null;
+    let groupName = KDefaultGroup;
 
     let s = 0;
     let e = m3u.indexOf('\n');
@@ -34,17 +35,21 @@ export default class Playlist {
       // #EXTINF:0 group-title="Общероссийские",Первый канал'
       let m = line.match(/^#EXTINF:0\s+group-title=\"([^\"]*)\"\s*(parent-code=\"([^\"]*)\")?.*,\s*(.*)\s*$/)
       if (m) {
-        let groupName = m[1];
+        groupName = m[1];
         chan = {
           title: m[4],
           parentCode: m[3]
         };
+      } else if (chan && line.match(/^http:.*m3u8?$/)) {
+        chan.url = line;
+        chan.key = line.substring(line.lastIndexOf('/'));
+
         if (!(groupName in groups)) {
           groups[groupName] = [];
         }
         groups[groupName].push(chan);
-      } else if (chan && line.startsWith("http")) {
-        chan.url = line;
+
+        groupName = KDefaultGroup;
         chan = null;
       }
 
@@ -59,8 +64,10 @@ export default class Playlist {
           groupName: grp,
           channels: groups[grp]
         });
+        console.log('Group', grp, 'has', groups[grp].length, 'channels');
       }
     }
+    console.log('Found', obj.groups.length, 'groups');
 
     //console.log(obj);
     return obj;

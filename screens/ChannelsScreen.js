@@ -25,9 +25,6 @@ export default class ChannelsScreen extends React.Component {
               {item.title}
             </Text>
           }
-          keyExtractor={
-            (item, index) => item.url
-          }
         />
       </View>
     );
