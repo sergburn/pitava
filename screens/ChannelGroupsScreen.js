@@ -41,24 +41,22 @@ export default class ChannelGroupsScreen extends React.Component {
         <View style={styles.container}>
           <FlatList
             data={this.state.playlist.groups}
-            renderItem={
-              ({item}) =>
-              <Text style={styles.getStartedText}
-                onPress={() => push('Channels', { channels: item } )}>
-                {item.groupName}</Text>
+            renderItem={({item}) =>
+              <Text style={styles.getStartedText} onPress={() => this._handleGroupPress(item)} >
+                {item.groupName}
+              </Text>
             }
             keyExtractor={
               (item, index) => item.groupName
             }
-            onitem
           />
         </View>
       );
     }
   }
 
-  _handleGroupPress = () => {
-
+  _handleGroupPress = (item) => {
+    this.props.navigation.push('Channels', { channelGroup: item } );
   }
 }
 

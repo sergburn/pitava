@@ -62,7 +62,7 @@ export default class Playlist {
       }
     }
 
-    console.log(obj);
+    //console.log(obj);
     return obj;
   };
 };

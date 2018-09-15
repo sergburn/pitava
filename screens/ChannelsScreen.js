@@ -1,5 +1,5 @@
 import React from 'react';
-import { Alert, FlatList, StyleSheet, Text, View } from 'react-native';
+import { Alert, FlatList, Linking, StyleSheet, Text, View } from 'react-native';
 import Playlist from '../Playlist';
 
 export default class ChannelsScreen extends React.Component {
@@ -7,30 +7,35 @@ export default class ChannelsScreen extends React.Component {
     title: 'Channels',
   };
   state = {
-    channels: {}
+    channelGroup: []
   };
 
   constructor(props) {
     super(props);
-    this.setState({
-      channels: channels
-    });
+    this.state.channelGroup = this.props.navigation.getParam('channelGroup', {});
   }
 
   render() {
     return (
       <View style={styles.container}>
         <FlatList
-          data={this.state.channels}
-          renderItem={
-            ({item}) => <Text style={styles.getStartedText}>{item.title}</Text>
+          data={this.state.channelGroup.channels}
+          renderItem={({item}) =>
+            <Text style={styles.getStartedText} onPress={() => this._handleChannelPress(item)} >
+              {item.title}
+            </Text>
           }
           keyExtractor={
-            (item, index) => item.title
+            (item, index) => item.url
           }
         />
       </View>
     );
+  }
+
+  _handleChannelPress = (channel) => {
+    console.log('Starting channel', channel.title, '@', channel.url);
+    Linking.openURL(channel.url).catch(err => console.error('An error occurred', err));
   }
 }
 

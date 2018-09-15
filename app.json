@@ -2,6 +2,7 @@
   "expo": {
     "sdkVersion": "27.0.0",
     "slug": "pitava",
-    "name": "pitava"
+    "name": "pitava",
+    "privacy": "unlisted"
   }
 }
