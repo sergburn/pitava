@@ -1,13 +1,73 @@
 import React from 'react';
-import { Alert, FlatList, Linking, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, Alert, FlatList, Linking, StyleSheet, Text, View } from 'react-native';
 import Playlist from '../Playlist';
 
-export default class ChannelsScreen extends React.Component {
+const channelListUrl = "https://cbilling.tv/playlist/b2b6c0e102b7a7eefc1a10bf78691637_otp_dev1.m3u8";
+const channelListFileUrl = 'channelList.m3u8';
+
+const channelList = { name : 'Playlist', url : channelListUrl, file : channelListFileUrl };
+
+export class ChannelGroupsScreen extends React.Component {
   static navigationOptions = {
-    title: 'Channels',
+    title: 'Группы',
   };
   state = {
-    channelGroup: []
+    isLoadingComplete: false,
+    playlist: {}
+  };
+
+  constructor(props) {
+    super(props);
+    Playlist.loadPlaylistAsync(channelList)
+    .then(playlist => {
+      this.setState({
+        isLoadingComplete: true,
+        playlist: playlist
+      })
+    })
+    .catch (err => {
+      console.error(err);
+      Alert.alert('Loading failed!');
+    })
+  }
+
+  render() {
+    if (!this.state.isLoadingComplete) {
+      return (
+        <ActivityIndicator />
+      );
+    } else {
+      return (
+        <View style={styles.container}>
+          <FlatList
+            data={this.state.playlist.groups}
+            renderItem={({item}) =>
+              <Text style={styles.getStartedText} onPress={() => this._handleGroupPress(item)} >
+                {item.groupName}
+              </Text>
+            }
+            keyExtractor={
+              (item, index) => item.groupName
+            }
+          />
+        </View>
+      );
+    }
+  }
+
+  _handleGroupPress = (item) => {
+    this.props.navigation.push('Channels', { title: item.groupName, channelGroup: item } );
+  }
+}
+
+export class ChannelsScreen extends React.Component {
+  static navigationOptions = ({navigation}) => {
+    return {
+      title: navigation.getParam('title', 'Channels')
+    };
+  };
+  state = {
+    channelGroup: {}
   };
 
   constructor(props) {

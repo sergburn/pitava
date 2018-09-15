@@ -5,16 +5,29 @@ export default class Playlist {
   static loadPlaylistAsync = async function ( file ) {
     try {
       let { uri, status } = await FileSystem.downloadAsync(file.url, FileSystem.documentDirectory + file.file);
-      console.log('Download of', file.name, 'ready! Status:', status, ', file:', uri);
+      console.log('Download of', file.url, 'ready! Status:', status, ', file:', uri);
 
       let content = await FileSystem.readAsStringAsync(uri);
-      console.log('Reading of ', file.name, 'ready! Size:', content.length);
+      console.log('Reading of', uri, 'ready! Size:', content.length);
 
-      let playlist = Playlist._parseChannelList(content);
-      playlist.name = file.name;
-      return playlist;
+      if (uri.endsWith('.m3u8')) {
+        return Playlist._parseChannelList(content);
+      } if (uri.endsWith('.XML')) {
+        let parser = require('react-native-xml2js');
+        let catalog = await new Promise((resolve, reject) => {
+          parser.parseString(content, function (err, result) {
+            if (err) {
+              console.log('XML parser failed with', err);
+              reject(err);
+            } else {
+              resolve(result);
+            }
+          });
+        });
+        return catalog;
+      }
     } catch (e) {
-      console.error(error);
+      console.error(e);
     }
   };
 
@@ -72,4 +85,20 @@ export default class Playlist {
     //console.log(obj);
     return obj;
   };
+
+  static _parseCatalog = async function(xml) {
+    let parser = require('react-native-xml2js');
+
+    return new Promise((resolve, reject) => {
+      parser.parseString(xml, function (err, result) {
+        console.dir(result);
+        resolve(result);
+      });
+    });
+
+    let catalog = parser.parseString(xml, function (err, result) {
+      console.dir(result);
+    });
+    return catalog;
+  }
 };

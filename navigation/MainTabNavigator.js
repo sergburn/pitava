@@ -6,8 +6,8 @@ import TabBarIcon from '../components/TabBarIcon';
 import HomeScreen from '../screens/HomeScreen';
 import LinksScreen from '../screens/LinksScreen';
 import SettingsScreen from '../screens/SettingsScreen';
-import ChannelsScreen from '../screens/ChannelsScreen';
-import ChannelGroupsScreen from '../screens/ChannelGroupsScreen';
+import { ChannelsScreen, ChannelGroupsScreen } from '../screens/ChannelsScreen';
+import { LibraryItemsScreen, LibraryFoldersScreen } from '../screens/LibraryScreen';
 
 const HomeStack = createStackNavigator({
   Home: HomeScreen,
@@ -27,12 +27,13 @@ HomeStack.navigationOptions = {
   ),
 };
 
-const LinksStack = createStackNavigator({
-  Links: LinksScreen,
+const ChannelsStack = createStackNavigator({
+  ChannelGroups: ChannelGroupsScreen,
+  Channels: ChannelsScreen,
 });
 
-LinksStack.navigationOptions = {
-  tabBarLabel: 'Links',
+ChannelsStack.navigationOptions = {
+  tabBarLabel: 'Channels',
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
       focused={focused}
@@ -41,13 +42,13 @@ LinksStack.navigationOptions = {
   ),
 };
 
-const ChannelsStack = createStackNavigator({
-  ChannelGroups: ChannelGroupsScreen,
-  Channels: ChannelsScreen,
+const LibraryStack = createStackNavigator({
+  LibraryFolders: LibraryFoldersScreen,
+  LibraryItems: LibraryItemsScreen,
 });
 
-ChannelsStack.navigationOptions = {
-  tabBarLabel: 'Channels',
+LibraryStack.navigationOptions = {
+  tabBarLabel: 'Library',
   tabBarIcon: ({ focused }) => (
     <TabBarIcon
       focused={focused}
@@ -71,7 +72,7 @@ SettingsStack.navigationOptions = {
 };
 
 export default createBottomTabNavigator({
+  LibraryStack,
   ChannelsStack,
-  HomeStack,
   SettingsStack,
 });
