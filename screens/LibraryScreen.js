@@ -5,23 +5,27 @@ import {
   Button,
   FlatList,
   Linking,
+  StatusBar,
   StyleSheet,
   Text,
   View,
   WebView
 } from 'react-native';
+
 import Playlist from '../Playlist';
+import Colors from '../constants/Colors';
 
-const libraryListUrl = "http://ott.iptvx.tv/b2b6c0e102b7a7eefc1a10bf78691637_1.xml#.XML";
-const libraryListFileUrl = 'library.XML';
-
-const libraryList = { name : 'Library', url : libraryListUrl, file : libraryListFileUrl };
+const libraryRoot = {
+  name : 'Медиатека',
+  url : "http://ott.iptvx.tv/b2b6c0e102b7a7eefc1a10bf78691637_1.xml#.XML",
+  file : 'library.XML'
+};
 
 export class LibraryFoldersScreen extends React.Component {
   static navigationOptions = ({navigation}) => {
-    let folder = navigation.getParam('libraryFolder', null);
+    let folder = navigation.getParam('libraryFolder', libraryRoot);
     return {
-      title: folder ? folder.name : 'Categories'
+      title: folder.name
     };
   };
   state = {
@@ -31,7 +35,7 @@ export class LibraryFoldersScreen extends React.Component {
 
   constructor(props) {
     super(props);
-    let libraryFolder = this.props.navigation.getParam('libraryFolder', libraryList);
+    let libraryFolder = this.props.navigation.getParam('libraryFolder', libraryRoot);
     Playlist.loadPlaylistAsync(libraryFolder)
     .then(catalog => {
       this.setState({
@@ -53,10 +57,13 @@ export class LibraryFoldersScreen extends React.Component {
     } else {
       return (
         <View style={styles.listContainer}>
+          <StatusBar
+            barStyle={"light-content"}
+          />
           <FlatList
             data={this.state.catalog.items.channel}
             renderItem={({item}) =>
-              <Text style={styles.getStartedText} onPress={() => this._handleGroupPress(item)} >
+              <Text style={styles.listText} onPress={() => this._handleGroupPress(item)} >
                 {item.title[0].trim()}
               </Text>
             }
@@ -139,21 +146,19 @@ const styles = StyleSheet.create({
     paddingTop: 15,
     backgroundColor: '#fff',
     justifyContent: 'flex-start',
-    alignItems: 'center'
+    alignItems: 'stretch'
   },
-  getStartedText: {
-    fontSize: 17,
+  listText: {
+    fontSize: 20,
     color: 'rgba(96,100,109, 1)',
-    lineHeight: 24,
-    textAlign: 'center',
+    lineHeight: 34,
+    textAlign: 'center'
   },
   logo: {
     width: 200,
     height: 200
   },
   description: {
-    width: 200,
-    height: 200,
-    borderWidth: 2
+    flex: 1
   }
 });
