@@ -129,6 +129,7 @@ export class ParentScreen extends React.Component {
     this.channel = this.props.navigation.getParam('channel', {});
     this.code = '';
     this.state.codeString = ParentScreen._makeCodeString('');
+    this._handleDigitPress = this._handleDigitPress.bind(this);
   }
 
   render() {
@@ -138,42 +139,22 @@ export class ParentScreen extends React.Component {
           { this.state.codeString }
         </Text>
         <View style={styles.digitRow}>
-          <TouchableHighlight onPress={() => this._handleDigitPress(1)}>
-            <Text style={styles.digit}>1</Text>
-          </TouchableHighlight>
-          <TouchableHighlight onPress={() => this._handleDigitPress(2)}>
-            <Text style={styles.digit}>2</Text>
-          </TouchableHighlight>
-          <TouchableHighlight onPress={() => this._handleDigitPress(3)}>
-            <Text style={styles.digit}>3</Text>
-          </TouchableHighlight>
+          <DigitButton digit='1' onPress={this._handleDigitPress} />
+          <DigitButton digit='2' onPress={this._handleDigitPress} />
+          <DigitButton digit='3' onPress={this._handleDigitPress} />
         </View>
         <View style={styles.digitRow}>
-          <TouchableHighlight onPress={() => this._handleDigitPress(4)}>
-            <Text style={styles.digit}>4</Text>
-          </TouchableHighlight>
-          <TouchableHighlight onPress={() => this._handleDigitPress(5)}>
-            <Text style={styles.digit}>5</Text>
-          </TouchableHighlight>
-          <TouchableHighlight onPress={() => this._handleDigitPress(6)}>
-            <Text style={styles.digit}>6</Text>
-          </TouchableHighlight>
+          <DigitButton digit='4' onPress={this._handleDigitPress} />
+          <DigitButton digit='5' onPress={this._handleDigitPress} />
+          <DigitButton digit='6' onPress={this._handleDigitPress} />
         </View>
         <View style={styles.digitRow}>
-          <TouchableHighlight onPress={() => this._handleDigitPress(7)}>
-            <Text style={styles.digit}>7</Text>
-          </TouchableHighlight>
-          <TouchableHighlight onPress={() => this._handleDigitPress(8)}>
-            <Text style={styles.digit}>8</Text>
-          </TouchableHighlight>
-          <TouchableHighlight onPress={() => this._handleDigitPress(9)}>
-            <Text style={styles.digit}>9</Text>
-          </TouchableHighlight>
+          <DigitButton digit='7' onPress={this._handleDigitPress} />
+          <DigitButton digit='8' onPress={this._handleDigitPress} />
+          <DigitButton digit='9' onPress={this._handleDigitPress} />
         </View>
         <View style={styles.digitRow}>
-          <TouchableHighlight onPress={() => this._handleDigitPress(0)}>
-            <Text style={styles.digit}>0</Text>
-          </TouchableHighlight>
+          <DigitButton digit='0' onPress={this._handleDigitPress} />
         </View>
       </View>
     );
@@ -190,8 +171,7 @@ export class ParentScreen extends React.Component {
       this.code = this.code.concat(digit);
     }
     let codeString = ParentScreen._makeCodeString(this.code);
-    this.setState(() => {
-      return {
+    this.setState({
         codeString: codeString
       };
     });
@@ -208,6 +188,25 @@ export class ParentScreen extends React.Component {
     }
   }
 }
+
+class DigitButton extends React.Component {
+  constructor(props) {
+    super(props);
+    this._handlePress = this._handlePress.bind(this);
+  }
+
+  _handlePress() {
+    this.props.onPress(this.props.digit);
+  }
+
+  render() {
+    return (
+      <TouchableHighlight onPress={this._handlePress}>
+        <Text style={styles.digit}>{this.props.digit}</Text>
+      </TouchableHighlight>
+    );
+  }
+};
 
 const styles = StyleSheet.create({
   container: {
