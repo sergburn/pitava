@@ -3,11 +3,12 @@ import { Platform } from 'react-native';
 import { createStackNavigator, createBottomTabNavigator } from 'react-navigation';
 
 import Colors from '../constants/Colors';
+import Data from '../constants/Data';
 import TabBarIcon from '../components/TabBarIcon';
 import HomeScreen from '../screens/HomeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
-import { ChannelsScreen, ChannelGroupsScreen, ParentScreen } from '../screens/ChannelsScreen';
 import { LibraryItemsScreen, LibraryFoldersScreen } from '../screens/LibraryScreen';
+import PinCodeScreen from '../screens/PinCodeScreen';
 
 const headerStyle = {
   backgroundColor: Colors.headerBackgroundColor,
@@ -35,11 +36,19 @@ HomeStack.navigationOptions = {
 };
 
 const ChannelsStack = createStackNavigator({
-  ChannelGroups: ChannelGroupsScreen,
-  Channels: ChannelsScreen,
-  ParentCode: ParentScreen,
+  LibraryFolders: {
+    screen: LibraryFoldersScreen,
+    // navigationOptions: ({ navigation }) => ({
+    //   title: Data.ChannelsRoot.title,
+    // })
+  },
+  LibraryItems: LibraryItemsScreen,
+  ParentCode: PinCodeScreen,
 },
 {
+  initialRouteParams: {
+    playlist: Data.ChannelsRoot
+  },
   navigationOptions: {
     headerStyle: headerStyle,
     headerTintColor: Colors.headerTintColor,
@@ -59,10 +68,18 @@ ChannelsStack.navigationOptions = {
 };
 
 const LibraryStack = createStackNavigator({
-  LibraryFolders: LibraryFoldersScreen,
+  LibraryFolders: {
+    screen: LibraryFoldersScreen,
+    // navigationOptions: ({ navigation }) => ({
+    //   title: 'Data.LibraryRoot.title',
+    // })
+  },
   LibraryItems: LibraryItemsScreen,
 },
 {
+  initialRouteParams: {
+    playlist: Data.LibraryRoot
+  },
   navigationOptions: {
     headerStyle: headerStyle,
     headerTintColor: Colors.headerTintColor,
@@ -100,4 +117,8 @@ export default createBottomTabNavigator({
   LibraryStack,
   ChannelsStack,
   SettingsStack,
+},{
+  tabBarOptions: {
+    activeTintColor: Colors.tintColor
+  }
 });

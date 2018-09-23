@@ -1,30 +1,17 @@
 import React from 'react';
 import {
-  Alert,
-  AlertIOS,
   Platform,
   StatusBar,
   StyleSheet,
-  ToastAndroid,
   View
 } from 'react-native';
 import {
   AppLoading,
   Asset,
-  FileSystem,
   Font,
   Icon
 } from 'expo';
 import AppNavigator from './navigation/AppNavigator';
-
-const mediaListUrl = "http://ott.iptvx.tv/b2b6c0e102b7a7eefc1a10bf78691637_1.xml#.XML";
-const mediaListFileUrl = FileSystem.documentDirectory + 'mediaList.xml';
-
-const filesToLoad = [
-  ,
-  { name : 'Medialist', url : mediaListUrl, file : mediaListFileUrl },
-  //{ name : 'CRAP', url : 'http://crap', file : FileSystem.documentDirectory + 'crap'}
-];
 
 export default class App extends React.Component {
   state = {

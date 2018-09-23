@@ -14,39 +14,41 @@ import {
 
 import Playlist from '../Playlist';
 import Colors from '../constants/Colors';
-
-const libraryRoot = {
-  name : 'Медиатека',
-  url : "http://ott.iptvx.tv/b2b6c0e102b7a7eefc1a10bf78691637_1.xml#.XML",
-  file : 'library.XML'
-};
+import Data from '../constants/Data';
 
 export class LibraryFoldersScreen extends React.Component {
+
   static navigationOptions = ({navigation}) => {
-    let folder = navigation.getParam('libraryFolder', libraryRoot);
+    let playlist = navigation.getParam('playlist');
     return {
-      title: folder.name
+      title: playlist.title
     };
-  };
-  state = {
-    isLoadingComplete: false,
-    catalog: {}
   };
 
   constructor(props) {
     super(props);
-    let libraryFolder = this.props.navigation.getParam('libraryFolder', libraryRoot);
-    Playlist.loadPlaylistAsync(libraryFolder)
-    .then(catalog => {
-      this.setState({
-        isLoadingComplete: true,
-        catalog: catalog
-      })
+    this.state = {
+      isLoadingComplete: false,
+    };
+    this._handlePinReady = this._handlePinReady.bind(this);
+
+    let playlist = this.props.navigation.getParam('playlist');
+    let prom = null;
+
+    if (playlist.items) {
+      prom = new Promise((resolve) => resolve(playlist));
+    } else if (playlist.url) {
+      prom = Playlist.loadAsync(playlist.url, playlist.type);
+    }
+
+    prom
+    .then(playlist => {
+      this._setPlaylist(playlist, true);
     })
     .catch (err => {
       console.error(err);
       Alert.alert('Loading failed!');
-    })
+    });
   }
 
   render() {
@@ -57,18 +59,16 @@ export class LibraryFoldersScreen extends React.Component {
     } else {
       return (
         <View style={styles.listContainer}>
-          <StatusBar
-            barStyle={"light-content"}
-          />
+          <StatusBar barStyle={"light-content"} />
           <FlatList
-            data={this.state.catalog.items.channel}
+            data={this.state.playlist.items}
             renderItem={({item}) =>
-              <Text style={styles.listText} onPress={() => this._handleGroupPress(item)} >
-                {item.title[0].trim()}
+              <Text style={styles.listText} onPress={() => this._handleItemPress(item)} >
+                {item.title}
               </Text>
             }
             keyExtractor={
-              (item, index) => item.title[0]
+              (item, index) => item.title
             }
           />
         </View>
@@ -76,23 +76,48 @@ export class LibraryFoldersScreen extends React.Component {
     }
   }
 
-  _handleGroupPress = (item) => {
-    if (item.hasOwnProperty('playlist_url')) {
-      let libraryFolder = {
-        name: item.title[0],
-        url: item.playlist_url[0],
-        file: 'playlist.XML'
-      };
-      this.props.navigation.push('LibraryFolders', { libraryFolder: libraryFolder } );
-    } else if (item.hasOwnProperty('stream_url')) {
+  _setPlaylist(playlist) {
+    this.setState({
+      isLoadingComplete: true,
+      playlist: playlist
+    });
+    if (playlist.title) {
+      this.props.navigation.setParams({playlist: playlist});
+    }
+  }
+
+  _handlePinReady(pin) {
+    if (this.item.accessCode === pin) {
+      console.log('Pincode ok!');
+      startChannel(this.channel);
+    }
+    this._togglePinDialVisible(false);
+  }
+
+  _handleItemPress = (item) => {
+    if (item.accessCode) {
+      console.log('Pin code required for item', item.title);
+      this.props.navigation.push('ParentCode', {
+        checkCode: item.accessCode,
+        onSuccess: this._navigateNextView.bind(this, item)
+      });
+    } else {
+      this._navigateNextView(item);
+    }
+  }
+
+  _navigateNextView(item) {
+    if (item.type === 'stream') {
       let libraryItem = {
-        title: item.title[0],
-        stream_url: item.stream_url[0],
-        logo_url: item.logo_30x30[0],
-        description: item.description[0]
+        title: item.title,
+        stream_url: item.url,
+        logo_url: item.icon,
+        description: item.info
       };
       console.log(libraryItem.description);
       this.props.navigation.push('LibraryItems', { libraryItem: libraryItem });
+    } else {
+      this.props.navigation.push('LibraryFolders', { playlist: item } );
     }
   }
 }

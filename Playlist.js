@@ -1,19 +1,40 @@
 import { FileSystem } from 'expo';
+const parser = require('react-native-xml2js');
 
+/*::
+   type Playlist = {
+    title: string;
+    url: string;
+    type: 'xml' | 'm3u' | 'stream' | 'folder';
+    icon?: string;
+    info?: string;
+    accessCode?: string;
+    items?: Array<Playlist>;
+  }
+*/
 export default class Playlist {
+  constructor(title, url) {
+    this.title = title;
+    this.url = url;
+  }
 
-  static loadPlaylistAsync = async function ( file ) {
+  static loadAsync = async function ( url, type ) {
     try {
-      let { uri, status } = await FileSystem.downloadAsync(file.url, FileSystem.documentDirectory + file.file);
-      console.log('Download of', file.url, 'ready! Status:', status, ', file:', uri);
+      // let { uri, status } = await FileSystem.downloadAsync(url, FileSystem.documentDirectory + 'file.' + type);
+      // console.log('Download of', url, 'ready! Status:', status, ', file:', uri);
 
-      let content = await FileSystem.readAsStringAsync(uri);
-      console.log('Reading of', uri, 'ready! Size:', content.length);
+      // let content = await FileSystem.readAsStringAsync(uri);
+      // console.log('Reading of', uri, 'ready! Size:', content.length);
 
-      if (uri.endsWith('.m3u8')) {
-        return Playlist._parseChannelList(content);
-      } if (uri.endsWith('.XML')) {
-        let parser = require('react-native-xml2js');
+      let response = await fetch(url);
+      console.log('Download of', url, 'ready! Status:', response.status);
+
+      let content = await response.text();
+      console.log('Reading of response ready! Size:', content.length);
+
+      if (type === 'm3u') {
+        return Playlist._parseM3U(content);
+      } if (type  === 'xml') {
         let catalog = await new Promise((resolve, reject) => {
           parser.parseString(content, function (err, result) {
             if (err) {
@@ -24,19 +45,22 @@ export default class Playlist {
             }
           });
         });
-        return catalog;
+        return Playlist._parseCatalog(catalog);
       }
     } catch (e) {
       console.error(e);
     }
   };
 
-  static _parseChannelList = function(m3u) {
+  static _parseM3U = function(m3u) {
     const KDefaultGroup = 'Другие каналы';
 
-    let obj = {};
+    let playlist = {
+      title: 'Каналы',
+      items: []
+    };
     let groups = {};
-    let chan = null;
+    let channel = null;
     let groupName = KDefaultGroup;
 
     let s = 0;
@@ -49,56 +73,67 @@ export default class Playlist {
       let m = line.match(/^#EXTINF:0\s+group-title=\"([^\"]*)\"\s*(parent-code=\"([^\"]*)\")?.*,\s*(.*)\s*$/)
       if (m) {
         groupName = m[1];
-        chan = {
+        channel = {
           title: m[4],
-          parentCode: m[3]
+          type: 'stream',
+          accessCode: m[3],
         };
-      } else if (chan && line.match(/^http:.*m3u8?$/)) {
-        chan.url = line;
-        chan.key = line.substring(line.lastIndexOf('/'));
+      } else if (channel && line.match(/^http:.*m3u8?$/)) {
+        channel.url = line;
 
         if (!(groupName in groups)) {
           groups[groupName] = [];
         }
-        groups[groupName].push(chan);
+        groups[groupName].push(channel);
 
         groupName = KDefaultGroup;
-        chan = null;
+        channel = null;
       }
 
       s = e + 1;
       e = m3u.indexOf('\n', s);
     }
 
-    obj.groups = [];
     for (const grp in groups) {
       if (groups.hasOwnProperty(grp)) {
-        obj.groups.push({
-          groupName: grp,
-          channels: groups[grp]
+        playlist.items.push({
+          title: grp,
+          items: groups[grp],
+          type: 'folder',
         });
         console.log('Group', grp, 'has', groups[grp].length, 'channels');
       }
     }
-    console.log('Found', obj.groups.length, 'groups');
+    console.log('Found', playlist.items.length, 'groups');
 
     //console.log(obj);
-    return obj;
+    return playlist;
   };
 
-  static _parseCatalog = async function(xml) {
-    let parser = require('react-native-xml2js');
+  static _parseCatalog = async function(catalog) {
+    let playlist = {
+      title: catalog.items.playlist_name[0].trim(),
+      items: []
+    };
 
-    return new Promise((resolve, reject) => {
-      parser.parseString(xml, function (err, result) {
-        console.dir(result);
-        resolve(result);
-      });
+    catalog.items.channel.map((channel) => {
+      let item = {
+        title: channel.title[0].trim(),
+        icon: channel.logo_30x30[0],
+        info: channel.description[0],
+      };
+
+      if (channel.playlist_url) {
+        item.url = channel.playlist_url[0];
+        item.type = 'xml';
+      } else if (channel.stream_url) {
+        item.url = channel.stream_url[0];
+        item.type = 'stream';
+      }
+
+      playlist.items.push(item);
     });
 
-    let catalog = parser.parseString(xml, function (err, result) {
-      console.dir(result);
-    });
-    return catalog;
+    return playlist;
   }
 };
