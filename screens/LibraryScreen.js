@@ -42,12 +42,12 @@ export class LibraryFoldersScreen extends React.Component {
     }
 
     prom
-    .then(playlist => {
-      this._setPlaylist(playlist, true);
+    .then(subPlaylist => {
+      this._setPlaylist(subPlaylist);
     })
     .catch (err => {
-      console.error(err);
       Alert.alert('Loading failed!');
+      this._setPlaylist(playlist);
     });
   }
 
