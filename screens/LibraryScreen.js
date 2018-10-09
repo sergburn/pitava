@@ -148,6 +148,7 @@ export class LibraryItemsScreen extends React.Component {
         />
         <Button
           title='Смотреть'
+          color={Colors.tintColor}
           onPress={() => this._handleItemPress(this.state.libraryItem)}
         />
       </View>

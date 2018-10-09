@@ -1,3 +1,4 @@
+
 const tintColor = '#511ef4';
 
 export default {

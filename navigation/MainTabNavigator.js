@@ -100,6 +100,13 @@ LibraryStack.navigationOptions = {
 
 const SettingsStack = createStackNavigator({
   Settings: SettingsScreen,
+},
+{
+  navigationOptions: {
+    headerStyle: headerStyle,
+    headerTintColor: Colors.headerTintColor,
+    headerTitleStyle: headerTitleStyle,
+  },
 });
 
 SettingsStack.navigationOptions = {
