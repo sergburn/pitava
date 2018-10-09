@@ -4,6 +4,7 @@ import {
   Alert,
   Button,
   FlatList,
+  Image,
   Linking,
   StatusBar,
   StyleSheet,
@@ -15,6 +16,7 @@ import {
 import Playlist from '../Playlist';
 import Colors from '../constants/Colors';
 import Data from '../constants/Data';
+import ChannelIcons from '../constants/Channels';
 
 export class LibraryFoldersScreen extends React.Component {
 
@@ -140,9 +142,10 @@ export class LibraryItemsScreen extends React.Component {
 
   render() {
     return (
-      <View style={styles.infoContainer}>
-        <WebView
-          style={styles.description}
+      <View style={styles.itemContainer}>
+        <Image
+          source={ChannelIcons[this.state.libraryItem.title]} />
+        <WebView style={styles.description}
           source={{html: this.state.libraryItem.description}}
           originWhitelist={['*']}
         />
@@ -173,6 +176,12 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     justifyContent: 'flex-start',
     alignItems: 'stretch'
+  },
+  itemContainer: {
+    flex: 1,
+    backgroundColor: '#fff',
+    justifyContent: 'flex-start',
+    alignItems: 'center'
   },
   listText: {
     fontSize: 20,
