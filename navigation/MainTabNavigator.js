@@ -9,6 +9,7 @@ import HomeScreen from '../screens/HomeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import { LibraryItemsScreen, LibraryFoldersScreen } from '../screens/LibraryScreen';
 import PinCodeScreen from '../screens/PinCodeScreen';
+import NewPlaylistScreen from '../screens/NewPlaylistScreen';
 
 const headerStyle = {
   backgroundColor: Colors.headerBackgroundColor,
@@ -100,6 +101,7 @@ LibraryStack.navigationOptions = {
 
 const SettingsStack = createStackNavigator({
   Settings: SettingsScreen,
+  NewPlaylist: NewPlaylistScreen
 },
 {
   navigationOptions: {
