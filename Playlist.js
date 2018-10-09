@@ -1,6 +1,7 @@
 import { FileSystem } from 'expo';
 const parser = require('react-native-xml2js');
 
+
 /*::
    type Playlist = {
     title: string;
@@ -69,25 +70,36 @@ export default class Playlist {
       let line = m3u.substring(s, e);
       //console.log(line);
 
-      // #EXTINF:0 group-title="Общероссийские",Первый канал'
-      let m = line.match(/^#EXTINF:0\s+group-title=\"([^\"]*)\"\s*(parent-code=\"([^\"]*)\")?.*,\s*(.*)\s*$/)
+      // #EXTINF:0 group-title="Общероссийские",Первый канал
+      // #EXTGRP:Общероссийские
+      // or
+      // #EXIINF:0,Первый канал
+      // #EXTGRP:новости
+      let m = line.match(/^#EXTINF:0(\s+group-title=\"([^\"]*)\")?\s*(parent-code=\"([^\"]*)\")?\s*,\s*(.*)\s*$/);
       if (m) {
-        groupName = m[1];
+        groupName = m[2];
         channel = {
-          title: m[4],
+          title: m[5],
           type: 'stream',
-          accessCode: m[3],
+          accessCode: m[4],
         };
-      } else if (channel && line.match(/^http:.*m3u8?$/)) {
-        channel.url = line;
+      } else if (channel) {
+        if (line.match(/^http/)) {
+          channel.url = line;
 
-        if (!(groupName in groups)) {
-          groups[groupName] = [];
+          if (!(groupName in groups)) {
+            groups[groupName] = [];
+          }
+          groups[groupName].push(channel);
+
+          groupName = KDefaultGroup;
+          channel = null;
+        } else {
+          m = line.match(/^#EXTGRP:\s*(.*)\s*$/);
+          if (m) {
+            groupName = m[1]; /* override, if given in EXTINF */
+          }
         }
-        groups[groupName].push(channel);
-
-        groupName = KDefaultGroup;
-        channel = null;
       }
 
       s = e + 1;
@@ -98,7 +110,9 @@ export default class Playlist {
       if (groups.hasOwnProperty(grp)) {
         playlist.items.push({
           title: grp,
-          items: groups[grp],
+          items: groups[grp].sort((a,b) => {
+            return a.title.localeCompare(b.title);
+          }),
           type: 'folder',
         });
         console.log('Group', grp, 'has', groups[grp].length, 'channels');
