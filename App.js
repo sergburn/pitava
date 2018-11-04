@@ -12,11 +12,17 @@ import {
   Icon
 } from 'expo';
 import AppNavigator from './navigation/AppNavigator';
+import Config, { getConfig } from './Config';
 
 export default class App extends React.Component {
   state = {
     isLoadingComplete: false,
   };
+
+  constructor(props) {
+    super(props);
+    console.log('App.constructor', Config.settings);
+  }
 
   render() {
     if (!this.state.isLoadingComplete && !this.props.skipLoadingScreen) {
@@ -30,7 +36,7 @@ export default class App extends React.Component {
     } else {
       return (
         <View style={styles.container}>
-          {Platform.OS === 'ios' && <StatusBar barStyle="default" />}
+          {Platform.OS === 'ios' && <StatusBar barStyle={"light-content"} />}
           <AppNavigator />
         </View>
       );
@@ -39,6 +45,7 @@ export default class App extends React.Component {
 
   _loadResourcesAsync = async () => {
     return Promise.all([
+      Config.loadAsync(),
       Asset.loadAsync([
         require('./assets/images/robot-dev.png'),
         require('./assets/images/robot-prod.png'),
@@ -61,6 +68,7 @@ export default class App extends React.Component {
 
   _handleFinishLoading = () => {
     this.setState({ isLoadingComplete: true });
+    console.log('Loaded Config:', Config.settings);
   };
 }
 
