@@ -3,13 +3,14 @@ import { Platform } from 'react-native';
 import { createStackNavigator, createBottomTabNavigator } from 'react-navigation';
 
 import Colors from '../constants/Colors';
-import Data from '../constants/Data';
+import Config from '../Config';
 import TabBarIcon from '../components/TabBarIcon';
 import HomeScreen from '../screens/HomeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import { LibraryItemsScreen, LibraryFoldersScreen } from '../screens/LibraryScreen';
 import PinCodeScreen from '../screens/PinCodeScreen';
 import NewPlaylistScreen from '../screens/NewPlaylistScreen';
+import PlaylistsScreen from '../screens/PlaylistsScreen';
 
 const headerStyle = {
   backgroundColor: Colors.headerBackgroundColor,
@@ -101,6 +102,7 @@ LibraryStack.navigationOptions = {
 
 const SettingsStack = createStackNavigator({
   Settings: SettingsScreen,
+  Playlists: PlaylistsScreen,
   NewPlaylist: NewPlaylistScreen
 },
 {
@@ -125,7 +127,6 @@ SettingsStack.navigationOptions = {
 export default createBottomTabNavigator({
   LibraryStack,
   ChannelsStack,
-  SettingsStack,
 },{
   tabBarOptions: {
     activeTintColor: Colors.tintColor
