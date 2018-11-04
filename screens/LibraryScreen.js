@@ -15,7 +15,7 @@ import {
 
 import Playlist from '../Playlist';
 import Colors from '../constants/Colors';
-import Data from '../constants/Data';
+import Config from '../Config';
 import ChannelIcons from '../constants/Channels';
 
 export class LibraryFoldersScreen extends React.Component {
@@ -61,7 +61,6 @@ export class LibraryFoldersScreen extends React.Component {
     } else {
       return (
         <View style={styles.listContainer}>
-          <StatusBar barStyle={"light-content"} />
           <FlatList
             data={this.state.playlist.items}
             renderItem={({item}) =>

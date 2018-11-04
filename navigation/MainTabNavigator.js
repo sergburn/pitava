@@ -125,6 +125,7 @@ SettingsStack.navigationOptions = {
 };
 
 export default createBottomTabNavigator({
+  SettingsStack,
   LibraryStack,
   ChannelsStack,
 },{
