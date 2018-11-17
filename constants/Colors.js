@@ -14,5 +14,5 @@ export default {
   noticeText: '#fff',
   headerBackgroundColor: tintColor,
   headerTintColor: '#fff',
-
+  headerIconColor: '#fff'
 };

@@ -2,35 +2,82 @@ import React from 'react';
 import {
   Alert,
   Button,
+  Platform,
   ScrollView,
   StyleSheet,
   Text,
   TextInput,
+  TouchableNativeFeedback,
   View
 } from 'react-native';
+import { Icon } from 'expo';
 
 import Colors from '../constants/Colors';
 import Config from '../Config';
+import Layout from '../constants/Layout';
 
-export default class NewPlaylistScreen extends React.Component {
-  static navigationOptions = {
-    title: 'Настройки',
+const MODE_ADD = 1;
+const MODE_EDIT = 2;
+
+function headerRightToolBar(props) {
+  return(
+    <TouchableNativeFeedback
+      onPress={props.onPress}>
+      <View>
+        <Icon.Ionicons
+          style={styles.headIcon}
+          size={Layout.headBarIconSize}
+          name={Platform.OS === 'ios' ? `ios-trash` : 'md-trash'}
+          color={Colors.headerIconColor} />
+      </View>
+    </TouchableNativeFeedback>
+  );
+}
+
+export default class PlaylistDialog extends React.Component {
+  static navigationOptions = ({navigation}) => {
+    let mode = navigation.getParam('mode');
+    return {
+      title: mode == MODE_EDIT ? 'Изменить' : 'Добавить',
+      headerRight: mode == MODE_EDIT ?
+        headerRightToolBar({onPress: navigation.getParam('onDelete')} ) : null
+    };
   };
 
   constructor(props) {
     super(props);
-    this.state = {
-      title: '',
-      url: ''
-    };
+    let arg = this.props.navigation.getParam('playlist');
+    if (!!arg) {
+      this.state = {
+        title: arg.title
+      };
+      this.oldUrl = this.state.url = arg.url;
+      this.mode = MODE_EDIT;
+    } else {
+      this.state = {
+        title: '',
+        url: ''
+      };
+      this.mode = MODE_ADD;
+    }
+    console.log(this.mode == MODE_EDIT ? 'editing' : 'adding', this.state);
+  }
+
+  componentDidMount() {
+    this.props.navigation.setParams({
+      mode: this.mode,
+      onDelete: this.mode == MODE_EDIT ? this._handleDeletePress : null
+    });
   }
 
   render() {
     return (
-      <ScrollView style={styles.container}>
+      <ScrollView style={styles.container}
+        keyboardShouldPersistTaps='handled'>
         <Text style={styles.label}>Имя списка каналов</Text>
         <TextInput style={styles.input}
           autoFocus = {true}
+          defaultValue={this.state.title}
           ref={(ctl) => { this.titleInputCtl = ctl; }}
           blurOnSubmit = {false}
           returnKeyType='next'
@@ -43,7 +90,7 @@ export default class NewPlaylistScreen extends React.Component {
           ref={(ctl) => { this.urlInputCtl = ctl; }}
           autoCapitalize='none'
           autoCorrect={false}
-          defaultValue='https://'
+          defaultValue={this.state.url}
           keyboardType='url'
           multiline={true}
           numberOfLines={5}
@@ -65,7 +112,30 @@ export default class NewPlaylistScreen extends React.Component {
 
   _handleAddPress = () => {
     try {
-      Config.addPlaylist(this.state);
+      if (this.mode == MODE_ADD) {
+        Config.addPlaylist(this.state.title, this.state.url);
+      } else {
+        Config.editPlaylist(this.oldUrl, this.state.title, this.state.url);
+      }
+      this.props.navigation.pop();
+    } catch (e) {
+      console.log(e);
+      Alert.alert(e.message);
+    }
+  }
+
+  _handleDeletePress = () => {
+    Alert.alert(
+      'Удалить источник',
+      'Вы уверены?', [
+        { text: 'Да', onPress: this._deleteAndExit },
+        { text: '', style: 'cancel' }
+    ]);
+  }
+
+  _deleteAndExit = () => {
+    try {
+      Config.removePlaylist(this.oldUrl);
       this.props.navigation.pop();
     } catch (e) {
       console.log(e);
@@ -112,5 +182,8 @@ const styles = StyleSheet.create({
   },
   bottomMargin: {
     minHeight: 16
+  },
+  headIcon: {
+    marginHorizontal: 16
   }
 });

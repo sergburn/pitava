@@ -12,7 +12,7 @@ import {
   Icon
 } from 'expo';
 import AppNavigator from './navigation/AppNavigator';
-import Config, { getConfig } from './Config';
+import Config from './Config';
 
 export default class App extends React.Component {
   state = {

@@ -9,7 +9,7 @@ import HomeScreen from '../screens/HomeScreen';
 import SettingsScreen from '../screens/SettingsScreen';
 import { LibraryItemsScreen, LibraryFoldersScreen } from '../screens/LibraryScreen';
 import PinCodeScreen from '../screens/PinCodeScreen';
-import NewPlaylistScreen from '../screens/NewPlaylistScreen';
+import PlaylistDialog from '../screens/PlaylistDialog';
 import PlaylistsScreen from '../screens/PlaylistsScreen';
 
 const headerStyle = {
@@ -49,7 +49,7 @@ const ChannelsStack = createStackNavigator({
 },
 {
   initialRouteParams: {
-    playlist: Data.ChannelsRoot
+    playlist: Config.ChannelsRoot
   },
   navigationOptions: {
     headerStyle: headerStyle,
@@ -80,7 +80,7 @@ const LibraryStack = createStackNavigator({
 },
 {
   initialRouteParams: {
-    playlist: Data.LibraryRoot
+    playlist: Config.LibraryRoot
   },
   navigationOptions: {
     headerStyle: headerStyle,
@@ -103,7 +103,7 @@ LibraryStack.navigationOptions = {
 const SettingsStack = createStackNavigator({
   Settings: SettingsScreen,
   Playlists: PlaylistsScreen,
-  NewPlaylist: NewPlaylistScreen
+  PlaylistDialog: PlaylistDialog
 },
 {
   navigationOptions: {

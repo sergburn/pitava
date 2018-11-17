@@ -3,9 +3,9 @@ import {
   Alert,
   Button,
   FlatList,
-  ScrollView,
   StyleSheet,
   Text,
+  TouchableNativeFeedback,
   View,
 } from 'react-native';
 import { Divider } from 'react-native-elements';
@@ -30,7 +30,6 @@ export default class PlaylistsScreen extends React.Component {
       <View style={styles.container}>
         <NavigationEvents
           onWillFocus={payload => {
-            console.log('onWillFocus', payload);
             if (payload.action.type === "Navigation/POP") {
               this.forceUpdate();
             }
@@ -41,10 +40,14 @@ export default class PlaylistsScreen extends React.Component {
           keyExtractor={(item) => item.url}
           renderItem={({item}) => {
             return (
-              <View style={styles.item}>
-                <Text style={styles.itemTitle}>{item.title}</Text>
-                <Text style={styles.itemUrl}>{item.url}</Text>
-              </View>
+              <TouchableNativeFeedback
+                onPress={() => this._handleItemPress(item)}
+                background={TouchableNativeFeedback.Ripple(Colors.tintColor, false)}>
+                <View style={styles.item}>
+                  <Text style={styles.itemTitle}>{item.title}</Text>
+                  <Text style={styles.itemUrl}>{item.url}</Text>
+                </View>
+              </TouchableNativeFeedback>
             );
           }}
           ItemSeparatorComponent={Divider}
@@ -65,7 +68,11 @@ export default class PlaylistsScreen extends React.Component {
   }
 
   _handlePressAdd = () => {
-    this.props.navigation.push('NewPlaylist');
+    this.props.navigation.push('PlaylistDialog');
+  }
+
+  _handleItemPress = (item) => {
+    this.props.navigation.push('PlaylistDialog', { playlist: item });
   }
 }
 
@@ -88,8 +95,8 @@ const styles = StyleSheet.create({
     fontSize: 20,
   },
   item: {
-    marginHorizontal: 8,
-    marginVertical: 16,
+    paddingHorizontal: 8,
+    paddingVertical: 16,
   },
   itemTitle: {
     fontSize: 16,
